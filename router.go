@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package routing provides high performance and powerful HTTP routing capabilities.
-package routing
+package zag
 
 import (
 	"net/http"

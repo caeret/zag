@@ -33,7 +33,7 @@ Go 1.13 or above.
 In your Go project using `go mod`, run the following command to install the package:
 
 ```
-go get github.com/go-ozzo/ozzo-routing/v2
+go get github.com/caeret/zag
 ```
 
 ## Getting Started
@@ -48,12 +48,12 @@ package main
 import (
 	"log"
 	"net/http"
-	"github.com/go-ozzo/ozzo-routing/v2"
-	"github.com/go-ozzo/ozzo-routing/v2/access"
-	"github.com/go-ozzo/ozzo-routing/v2/slash"
-	"github.com/go-ozzo/ozzo-routing/v2/content"
-	"github.com/go-ozzo/ozzo-routing/v2/fault"
-	"github.com/go-ozzo/ozzo-routing/v2/file"
+	"github.com/caeret/zag"
+	"github.com/caeret/zag/access"
+	"github.com/caeret/zag/slash"
+	"github.com/caeret/zag/content"
+	"github.com/caeret/zag/fault"
+	"github.com/caeret/zag/file"
 )
 
 func main() {
@@ -337,8 +337,8 @@ under the specified directories, while the latter serves the content of a single
 
 ```go
 import (
-	"github.com/go-ozzo/ozzo-routing/v2"
-	"github.com/go-ozzo/ozzo-routing/v2/file"
+	"github.com/caeret/zag"
+	"github.com/caeret/zag/file"
 )
 
 router := routing.NewRouter()
@@ -378,10 +378,10 @@ The following code shows how these handlers may be used:
 import (
 	"log"
 	"net/http"
-	"github.com/go-ozzo/ozzo-routing/v2"
-	"github.com/go-ozzo/ozzo-routing/v2/access"
-	"github.com/go-ozzo/ozzo-routing/v2/slash"
-	"github.com/go-ozzo/ozzo-routing/v2/fault"
+	"github.com/caeret/zag"
+	"github.com/caeret/zag/access"
+	"github.com/caeret/zag/slash"
+	"github.com/caeret/zag/fault"
 )
 
 router := routing.New()

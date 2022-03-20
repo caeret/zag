@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-ozzo/ozzo-routing/v2"
+	zag "github.com/caeret/zag"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -71,7 +71,7 @@ func TestContent(t *testing.T) {
 	h := Content("testdata/index.html")
 	req, _ := http.NewRequest("GET", "/index.html", nil)
 	res := httptest.NewRecorder()
-	c := routing.NewContext(res, req)
+	c := zag.NewContext(res, req)
 	err := h(c)
 	assert.Nil(t, err)
 	assert.Equal(t, "hello\n", res.Body.String())
@@ -79,28 +79,28 @@ func TestContent(t *testing.T) {
 	h = Content("testdata/index.html")
 	req, _ = http.NewRequest("POST", "/index.html", nil)
 	res = httptest.NewRecorder()
-	c = routing.NewContext(res, req)
+	c = zag.NewContext(res, req)
 	err = h(c)
 	if assert.NotNil(t, err) {
-		assert.Equal(t, http.StatusMethodNotAllowed, err.(routing.HTTPError).StatusCode())
+		assert.Equal(t, http.StatusMethodNotAllowed, err.(zag.HTTPError).StatusCode())
 	}
 
 	h = Content("testdata/index.go")
 	req, _ = http.NewRequest("GET", "/index.html", nil)
 	res = httptest.NewRecorder()
-	c = routing.NewContext(res, req)
+	c = zag.NewContext(res, req)
 	err = h(c)
 	if assert.NotNil(t, err) {
-		assert.Equal(t, http.StatusNotFound, err.(routing.HTTPError).StatusCode())
+		assert.Equal(t, http.StatusNotFound, err.(zag.HTTPError).StatusCode())
 	}
 
 	h = Content("testdata/css")
 	req, _ = http.NewRequest("GET", "/index.html", nil)
 	res = httptest.NewRecorder()
-	c = routing.NewContext(res, req)
+	c = zag.NewContext(res, req)
 	err = h(c)
 	if assert.NotNil(t, err) {
-		assert.Equal(t, http.StatusNotFound, err.(routing.HTTPError).StatusCode())
+		assert.Equal(t, http.StatusNotFound, err.(zag.HTTPError).StatusCode())
 	}
 }
 
@@ -122,34 +122,34 @@ func TestServer(t *testing.T) {
 	for _, test := range tests {
 		req, _ := http.NewRequest(test.method, test.url, nil)
 		res := httptest.NewRecorder()
-		c := routing.NewContext(res, req)
+		c := zag.NewContext(res, req)
 		err := h(c)
 		if test.status == 0 {
 			assert.Nil(t, err, test.id)
 			assert.Equal(t, test.body, res.Body.String(), test.id)
 		} else {
 			if assert.NotNil(t, err, test.id) {
-				assert.Equal(t, test.status, err.(routing.HTTPError).StatusCode(), test.id)
+				assert.Equal(t, test.status, err.(zag.HTTPError).StatusCode(), test.id)
 			}
 		}
 	}
 
 	h = Server(PathMap{"/css": "/testdata/css"}, ServerOptions{
 		IndexFile: "index.html",
-		Allow: func(c *routing.Context, path string) bool {
+		Allow: func(c *zag.Context, path string) bool {
 			return path != "/testdata/css/main.css"
 		},
 	})
 
 	req, _ := http.NewRequest("GET", "/css/main.css", nil)
 	res := httptest.NewRecorder()
-	c := routing.NewContext(res, req)
+	c := zag.NewContext(res, req)
 	err := h(c)
 	assert.NotNil(t, err)
 
 	req, _ = http.NewRequest("GET", "/css", nil)
 	res = httptest.NewRecorder()
-	c = routing.NewContext(res, req)
+	c = zag.NewContext(res, req)
 	err = h(c)
 	assert.Nil(t, err)
 	assert.Equal(t, "css.html\n", res.Body.String())
@@ -159,27 +159,27 @@ func TestServer(t *testing.T) {
 		h = Server(PathMap{"/css": "/testdata/css"}, ServerOptions{
 			IndexFile:    "index.html",
 			CatchAllFile: "testdata/index.html",
-			Allow: func(c *routing.Context, path string) bool {
+			Allow: func(c *zag.Context, path string) bool {
 				return path != "/testdata/css/main.css"
 			},
 		})
 
 		req, _ := http.NewRequest("GET", "/css/main.css", nil)
 		res := httptest.NewRecorder()
-		c := routing.NewContext(res, req)
+		c := zag.NewContext(res, req)
 		err := h(c)
 		assert.NotNil(t, err)
 
 		req, _ = http.NewRequest("GET", "/css", nil)
 		res = httptest.NewRecorder()
-		c = routing.NewContext(res, req)
+		c = zag.NewContext(res, req)
 		err = h(c)
 		assert.Nil(t, err)
 		assert.Equal(t, "css.html\n", res.Body.String())
 
 		req, _ = http.NewRequest("GET", "/css2", nil)
 		res = httptest.NewRecorder()
-		c = routing.NewContext(res, req)
+		c = zag.NewContext(res, req)
 		err = h(c)
 		assert.Nil(t, err)
 		assert.Equal(t, "hello\n", res.Body.String())

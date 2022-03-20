@@ -1,18 +1,19 @@
-package routing_test
+package zag_test
 
 import (
-	"github.com/go-ozzo/ozzo-routing/v2"
-	"github.com/go-ozzo/ozzo-routing/v2/access"
-	"github.com/go-ozzo/ozzo-routing/v2/content"
-	"github.com/go-ozzo/ozzo-routing/v2/fault"
-	"github.com/go-ozzo/ozzo-routing/v2/file"
-	"github.com/go-ozzo/ozzo-routing/v2/slash"
 	"log"
 	"net/http"
+
+	zag "github.com/caeret/zag"
+	"github.com/caeret/zag/access"
+	"github.com/caeret/zag/content"
+	"github.com/caeret/zag/fault"
+	"github.com/caeret/zag/file"
+	"github.com/caeret/zag/slash"
 )
 
 func Example() {
-	router := routing.New()
+	router := zag.New()
 
 	router.Use(
 		// all these handlers are shared by every route
@@ -27,13 +28,13 @@ func Example() {
 		// these handlers are shared by the routes in the api group only
 		content.TypeNegotiator(content.JSON, content.XML),
 	)
-	api.Get("/users", func(c *routing.Context) error {
+	api.Get("/users", func(c *zag.Context) error {
 		return c.Write("user list")
 	})
-	api.Post("/users", func(c *routing.Context) error {
+	api.Post("/users", func(c *zag.Context) error {
 		return c.Write("create a new user")
 	})
-	api.Put(`/users/<id:\d+>`, func(c *routing.Context) error {
+	api.Put(`/users/<id:\d+>`, func(c *zag.Context) error {
 		return c.Write("update user " + c.Param("id"))
 	})
 

@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-ozzo/ozzo-routing/v2"
+	zag "github.com/caeret/zag"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +17,7 @@ func TestErrorHandler(t *testing.T) {
 
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/users/", nil)
-	c := routing.NewContext(res, req, h, handler1, handler2)
+	c := zag.NewContext(res, req, h, handler1, handler2)
 	assert.Nil(t, c.Next())
 	assert.Equal(t, http.StatusInternalServerError, res.Code)
 	assert.Equal(t, "abc", res.Body.String())
@@ -26,7 +26,7 @@ func TestErrorHandler(t *testing.T) {
 	buf.Reset()
 	res = httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/users/", nil)
-	c = routing.NewContext(res, req, h, handler2)
+	c = zag.NewContext(res, req, h, handler2)
 	assert.Nil(t, c.Next())
 	assert.Equal(t, http.StatusOK, res.Code)
 	assert.Equal(t, "test", res.Body.String())
@@ -36,7 +36,7 @@ func TestErrorHandler(t *testing.T) {
 	h = ErrorHandler(getLogger(&buf), convertError)
 	res = httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/users/", nil)
-	c = routing.NewContext(res, req, h, handler1, handler2)
+	c = zag.NewContext(res, req, h, handler1, handler2)
 	assert.Nil(t, c.Next())
 	assert.Equal(t, http.StatusInternalServerError, res.Code)
 	assert.Equal(t, "123", res.Body.String())
@@ -46,7 +46,7 @@ func TestErrorHandler(t *testing.T) {
 	h = ErrorHandler(nil)
 	res = httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/users/", nil)
-	c = routing.NewContext(res, req, h, handler1, handler2)
+	c = zag.NewContext(res, req, h, handler1, handler2)
 	assert.Nil(t, c.Next())
 	assert.Equal(t, http.StatusInternalServerError, res.Code)
 	assert.Equal(t, "abc", res.Body.String())
@@ -56,19 +56,19 @@ func TestErrorHandler(t *testing.T) {
 func Test_writeError(t *testing.T) {
 	res := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/users/", nil)
-	c := routing.NewContext(res, req)
+	c := zag.NewContext(res, req)
 	writeError(c, errors.New("abc"))
 	assert.Equal(t, http.StatusInternalServerError, res.Code)
 	assert.Equal(t, "abc", res.Body.String())
 
 	res = httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/users/", nil)
-	c = routing.NewContext(res, req)
-	writeError(c, routing.NewHTTPError(http.StatusNotFound, "xyz"))
+	c = zag.NewContext(res, req)
+	writeError(c, zag.NewHTTPError(http.StatusNotFound, "xyz"))
 	assert.Equal(t, http.StatusNotFound, res.Code)
 	assert.Equal(t, "xyz", res.Body.String())
 }
 
-func convertError(c *routing.Context, err error) error {
+func convertError(c *zag.Context, err error) error {
 	return errors.New("123")
 }

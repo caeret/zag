@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	routing "github.com/go-ozzo/ozzo-routing/v2"
+	routing "github.com/caeret/zag"
 	"github.com/stretchr/testify/assert"
 )
 

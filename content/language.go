@@ -7,7 +7,7 @@ package content
 import (
 	"net/http"
 
-	"github.com/go-ozzo/ozzo-routing/v2"
+	zag "github.com/caeret/zag"
 	"github.com/golang/gddo/httputil/header"
 )
 
@@ -27,13 +27,13 @@ const Language = "Language"
 //     }
 //
 // If you do not specify languages, the negotiator will set the language to be "en-US".
-func LanguageNegotiator(languages ...string) routing.Handler {
+func LanguageNegotiator(languages ...string) zag.Handler {
 	if len(languages) == 0 {
 		languages = []string{"en-US"}
 	}
 	defaultLanguage := languages[0]
 
-	return func(c *routing.Context) error {
+	return func(c *zag.Context) error {
 		language := negotiateLanguage(c.Request, languages, defaultLanguage)
 		c.Set(Language, language)
 		return nil

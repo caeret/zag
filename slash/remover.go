@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-ozzo/ozzo-routing/v2"
+	zag "github.com/caeret/zag"
 )
 
 // Remover returns a handler that removes the trailing slash (if any) from the requested URL.
@@ -20,8 +20,8 @@ import (
 //
 //     import (
 //         "net/http"
-//         "github.com/go-ozzo/ozzo-routing/v2"
-//         "github.com/go-ozzo/ozzo-routing/v2/slash"
+//         "github.com/caeret/zag"
+//         "github.com/caeret/zag/slash"
 //     )
 //
 //     r := routing.New()
@@ -29,8 +29,8 @@ import (
 //
 // Note that Remover relies on HTTP redirection to remove the trailing slashes.
 // If you do not want redirection, please set `Router.IgnoreTrailingSlash` to be true without using Remover.
-func Remover(status int) routing.Handler {
-	return func(c *routing.Context) error {
+func Remover(status int) zag.Handler {
+	return func(c *zag.Context) error {
 		if c.Request.URL.Path != "/" && strings.HasSuffix(c.Request.URL.Path, "/") {
 			if c.Request.Method != "GET" {
 				status = http.StatusTemporaryRedirect

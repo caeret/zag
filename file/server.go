@@ -12,7 +12,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/go-ozzo/ozzo-routing/v2"
+	"github.com/caeret/zag"
 )
 
 // ServerOptions defines the possible options for the Server handler.
@@ -33,7 +33,7 @@ type ServerOptions struct {
 	// may do additional work such as setting Expires HTTP header.
 	// The function should return a boolean indicating whether the file should be served or not.
 	// If false, a 404 HTTP error will be returned by the handler.
-	Allow func(*routing.Context, string) bool
+	Allow func(*zag.Context, string) bool
 }
 
 // PathMap specifies the mapping between URL paths (keys) and file paths (keys).
@@ -57,8 +57,8 @@ func init() {
 //
 //     import (
 //         "log"
-//         "github.com/go-ozzo/ozzo-routing/v2"
-//         "github.com/go-ozzo/ozzo-routing/v2/file"
+//         "github.com/caeret/zag"
+//         "github.com/caeret/zag/file"
 //     )
 //
 //     r := routing.New()
@@ -66,7 +66,7 @@ func init() {
 //          "/css": "/ui/dist/css",
 //          "/js": "/ui/dist/js",
 //     }))
-func Server(pathMap PathMap, opts ...ServerOptions) routing.Handler {
+func Server(pathMap PathMap, opts ...ServerOptions) zag.Handler {
 	var options ServerOptions
 	if len(opts) > 0 {
 		options = opts[0]
@@ -79,13 +79,13 @@ func Server(pathMap PathMap, opts ...ServerOptions) routing.Handler {
 	// security measure: limit the files within options.RootPath
 	dir := http.Dir(options.RootPath)
 
-	return func(c *routing.Context) error {
+	return func(c *zag.Context) error {
 		if c.Request.Method != "GET" && c.Request.Method != "HEAD" {
-			return routing.NewHTTPError(http.StatusMethodNotAllowed)
+			return zag.NewHTTPError(http.StatusMethodNotAllowed)
 		}
 		path, found := matchPath(c.Request.URL.Path, from, to)
 		if !found || options.Allow != nil && !options.Allow(c, path) {
-			return routing.NewHTTPError(http.StatusNotFound)
+			return zag.NewHTTPError(http.StatusNotFound)
 		}
 
 		var (
@@ -98,17 +98,17 @@ func Server(pathMap PathMap, opts ...ServerOptions) routing.Handler {
 			if options.CatchAllFile != "" {
 				return serveFile(c, dir, options.CatchAllFile)
 			}
-			return routing.NewHTTPError(http.StatusNotFound, err.Error())
+			return zag.NewHTTPError(http.StatusNotFound, err.Error())
 		}
 		defer file.Close()
 
 		if fstat, err = file.Stat(); err != nil {
-			return routing.NewHTTPError(http.StatusNotFound, err.Error())
+			return zag.NewHTTPError(http.StatusNotFound, err.Error())
 		}
 
 		if fstat.IsDir() {
 			if options.IndexFile == "" {
-				return routing.NewHTTPError(http.StatusNotFound)
+				return zag.NewHTTPError(http.StatusNotFound)
 			}
 			return serveFile(c, dir, filepath.Join(path, options.IndexFile))
 		}
@@ -119,17 +119,17 @@ func Server(pathMap PathMap, opts ...ServerOptions) routing.Handler {
 	}
 }
 
-func serveFile(c *routing.Context, dir http.Dir, path string) error {
+func serveFile(c *zag.Context, dir http.Dir, path string) error {
 	file, err := dir.Open(path)
 	if err != nil {
-		return routing.NewHTTPError(http.StatusNotFound, err.Error())
+		return zag.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 	defer file.Close()
 	fstat, err := file.Stat()
 	if err != nil {
-		return routing.NewHTTPError(http.StatusNotFound, err.Error())
+		return zag.NewHTTPError(http.StatusNotFound, err.Error())
 	} else if fstat.IsDir() {
-		return routing.NewHTTPError(http.StatusNotFound)
+		return zag.NewHTTPError(http.StatusNotFound)
 	}
 	c.Response.Header().Del("Content-Type")
 	http.ServeContent(c.Response, c.Request, path, fstat.ModTime(), file)
@@ -140,24 +140,24 @@ func serveFile(c *routing.Context, dir http.Dir, path string) error {
 // The file to be served can be specified as an absolute file path or a path relative to RootPath (which
 // defaults to the current working path).
 // If the specified file does not exist, the handler will pass the control to the next available handler.
-func Content(path string) routing.Handler {
+func Content(path string) zag.Handler {
 	if !filepath.IsAbs(path) {
 		path = filepath.Join(RootPath, path)
 	}
-	return func(c *routing.Context) error {
+	return func(c *zag.Context) error {
 		if c.Request.Method != "GET" && c.Request.Method != "HEAD" {
-			return routing.NewHTTPError(http.StatusMethodNotAllowed)
+			return zag.NewHTTPError(http.StatusMethodNotAllowed)
 		}
 		file, err := os.Open(path)
 		if err != nil {
-			return routing.NewHTTPError(http.StatusNotFound, err.Error())
+			return zag.NewHTTPError(http.StatusNotFound, err.Error())
 		}
 		defer file.Close()
 		fstat, err := file.Stat()
 		if err != nil {
-			return routing.NewHTTPError(http.StatusNotFound, err.Error())
+			return zag.NewHTTPError(http.StatusNotFound, err.Error())
 		} else if fstat.IsDir() {
-			return routing.NewHTTPError(http.StatusNotFound)
+			return zag.NewHTTPError(http.StatusNotFound)
 		}
 		c.Response.Header().Del("Content-Type")
 		http.ServeContent(c.Response, c.Request, path, fstat.ModTime(), file)

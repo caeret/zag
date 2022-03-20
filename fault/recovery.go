@@ -5,7 +5,7 @@
 // Package fault provides a panic and error handler for the ozzo routing package.
 package fault
 
-import "github.com/go-ozzo/ozzo-routing/v2"
+import zag "github.com/caeret/zag"
 
 type (
 	// LogFunc logs a message using the given format and optional arguments.
@@ -14,7 +14,7 @@ type (
 	LogFunc func(format string, a ...interface{})
 
 	// ConvertErrorFunc converts an error into a different format so that it is more appropriate for rendering purpose.
-	ConvertErrorFunc func(*routing.Context, error) error
+	ConvertErrorFunc func(*zag.Context, error) error
 )
 
 // Recovery returns a handler that handles both panics and errors occurred while servicing an HTTP request.
@@ -32,15 +32,15 @@ type (
 //
 //     import (
 //         "log"
-//         "github.com/go-ozzo/ozzo-routing/v2"
-//         "github.com/go-ozzo/ozzo-routing/v2/fault"
+//         "github.com/caeret/zag"
+//         "github.com/caeret/zag/fault"
 //     )
 //
 //     r := routing.New()
 //     r.Use(fault.Recovery(log.Printf))
-func Recovery(logf LogFunc, errorf ...ConvertErrorFunc) routing.Handler {
+func Recovery(logf LogFunc, errorf ...ConvertErrorFunc) zag.Handler {
 	handlePanic := PanicHandler(logf)
-	return func(c *routing.Context) error {
+	return func(c *zag.Context) error {
 		if err := handlePanic(c); err != nil {
 			if logf != nil {
 				logf("%v", err)

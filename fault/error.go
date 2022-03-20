@@ -8,7 +8,7 @@ package fault
 import (
 	"net/http"
 
-	"github.com/go-ozzo/ozzo-routing/v2"
+	zag "github.com/caeret/zag"
 )
 
 // ErrorHandler returns a handler that handles errors returned by the handlers following this one.
@@ -23,15 +23,15 @@ import (
 //
 //     import (
 //         "log"
-//         "github.com/go-ozzo/ozzo-routing/v2"
-//         "github.com/go-ozzo/ozzo-routing/v2/fault"
+//         "github.com/caeret/zag"
+//         "github.com/caeret/zag/fault"
 //     )
 //
 //     r := routing.New()
 //     r.Use(fault.ErrorHandler(log.Printf))
 //     r.Use(fault.PanicHandler(log.Printf))
-func ErrorHandler(logf LogFunc, errorf ...ConvertErrorFunc) routing.Handler {
-	return func(c *routing.Context) error {
+func ErrorHandler(logf LogFunc, errorf ...ConvertErrorFunc) zag.Handler {
+	return func(c *zag.Context) error {
 		err := c.Next()
 		if err == nil {
 			return nil
@@ -55,8 +55,8 @@ func ErrorHandler(logf LogFunc, errorf ...ConvertErrorFunc) routing.Handler {
 // writeError writes the error to the response.
 // If the error implements HTTPError, it will set the HTTP status as the result of the StatusCode() call of the error.
 // Otherwise, the HTTP status will be set as http.StatusInternalServerError.
-func writeError(c *routing.Context, err error) {
-	if httpError, ok := err.(routing.HTTPError); ok {
+func writeError(c *zag.Context, err error) {
+	if httpError, ok := err.(zag.HTTPError); ok {
 		c.Response.WriteHeader(httpError.StatusCode())
 	} else {
 		c.Response.WriteHeader(http.StatusInternalServerError)

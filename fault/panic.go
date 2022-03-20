@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/go-ozzo/ozzo-routing/v2"
+	zag "github.com/caeret/zag"
 )
 
 // PanicHandler returns a handler that recovers from panics happened in the handlers following this one.
@@ -16,15 +16,15 @@ import (
 //
 //     import (
 //         "log"
-//         "github.com/go-ozzo/ozzo-routing/v2"
-//         "github.com/go-ozzo/ozzo-routing/v2/fault"
+//         "github.com/caeret/zag"
+//         "github.com/caeret/zag/fault"
 //     )
 //
 //     r := routing.New()
 //     r.Use(fault.ErrorHandler(log.Printf))
 //     r.Use(fault.PanicHandler(log.Printf))
-func PanicHandler(logf LogFunc) routing.Handler {
-	return func(c *routing.Context) (err error) {
+func PanicHandler(logf LogFunc) zag.Handler {
+	return func(c *zag.Context) (err error) {
 		defer func() {
 			if e := recover(); e != nil {
 				if logf != nil {
