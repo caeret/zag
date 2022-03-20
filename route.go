@@ -12,11 +12,11 @@ import (
 
 // Route represents a URL path pattern that can be used to match requested URLs.
 type Route struct {
-	group          *RouteGroup
-	method, path   string
-	name, template string
-	tags           []interface{}
-	routes         []*Route
+	group                 *RouteGroup
+	method, path, handler string
+	name, template        string
+	tags                  []interface{}
+	routes                []*Route
 }
 
 // Name sets the name of the route.
@@ -51,6 +51,11 @@ func (r *Route) Method() string {
 // Path returns the request path that this route should match.
 func (r *Route) Path() string {
 	return r.group.prefix + r.path
+}
+
+// Handler returns the last handler name that this route is associated with.
+func (r *Route) Handler() string {
+	return r.handler
 }
 
 // Tags returns all custom data associated with the route.

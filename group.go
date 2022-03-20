@@ -4,7 +4,11 @@
 
 package routing
 
-import "strings"
+import (
+	"reflect"
+	"runtime"
+	"strings"
+)
 
 // RouteGroup represents a group of routes that share the same path prefix.
 type RouteGroup struct {
@@ -106,7 +110,12 @@ func (rg *RouteGroup) Use(handlers ...Handler) {
 }
 
 func (rg *RouteGroup) add(method, path string, handlers []Handler) *Route {
+	handler := ""
+	if n := len(handlers); n > 0 {
+		handler = runtime.FuncForPC(reflect.ValueOf(handlers[n-1]).Pointer()).Name()
+	}
 	r := rg.newRoute(method, path)
+	r.handler = handler
 	rg.router.addRoute(r, combineHandlers(rg.handlers, handlers))
 	return r
 }
